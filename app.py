@@ -7,7 +7,7 @@ import uuid
 
 app = Flask(__name__)
 
-# --- CONFIGURAÇÃO DO BANCO ---
+
 DB_CONFIG = {
     'dbname': 'manutencao_db',
     'user': 'postgres',
@@ -36,7 +36,7 @@ def gerenciar_requisicoes():
             data_atual = datetime.now().strftime('%d/%m/%Y')
             hora_atual = datetime.now().strftime('%H:%M:%S')
             
-            # Usei 'descricao' (o nome exato que está no banco)
+
             cursor.execute(
                 'INSERT INTO requisicoes (codigo, descricao, acao_realizada, data, hora) VALUES (%s, %s, %s, %s, %s)',
                 (codigo, dados['descricao'], dados['acao_realizada'], data_atual, hora_atual)
@@ -44,7 +44,7 @@ def gerenciar_requisicoes():
             conn.commit()
             return jsonify({'mensagem': 'Sucesso!', 'codigo': codigo}), 201
 
-        # Busca simples
+
         cursor.execute('SELECT * FROM requisicoes ORDER BY data DESC, hora DESC')
         requisicoes = cursor.fetchall()
         return jsonify(requisicoes)

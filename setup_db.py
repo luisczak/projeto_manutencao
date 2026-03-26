@@ -3,7 +3,7 @@ import psycopg2
 DB_CONFIG = {
     'dbname': 'manutencao_db',
     'user': 'postgres',
-    'password': '123', # Verifique se a senha do seu Postgres e essa mesmo!
+    'password': '123', 
     'host': 'localhost',
     'port': '5432'
 }
