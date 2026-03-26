@@ -5,7 +5,9 @@ from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import uuid
 
-app = Flask(__name__)
+app = Flask(__name__, 
+            template_folder='templates', 
+            static_folder='static')
 
 
 DB_CONFIG = {

@@ -62,7 +62,7 @@
             const descricao = document.getElementById('descricao').value;
             const acao_realizada = document.getElementById('acao_realizada').value;
 
-            await fetch('/api/requisicoes', {
+            await fetch('http://localhost:5000/api/requisicoes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ descricao, acao_realizada })
