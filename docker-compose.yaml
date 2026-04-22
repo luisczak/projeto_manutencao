@@ -7,32 +7,34 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: manutencao_db
-    ports: 
+    ports:
       - "5432:5432"
-
-    healthcheck: 
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d manutencao_db"]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks: 
-     - manutencao_network
+    networks:
+      - manutencao_network
 
   backend:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     dns:
-    - 8.8.8.8
-    - 1.1.1.1
+      - 8.8.8.8
+      - 1.1.1.1
     networks:
-    - manutencao_network
+      - manutencao_network
     build:
-      context:.
+      context: .
+      dockerfile: Dockerfile
     container_name: manutencao_backend
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres_local:5432/manutencao_db
-      ERP_DATABASE_URL:
-      REDIS_URL:
+      ERP_DATABASE_URL: ""
+      REDIS_URL: ""
       DEBUG: "true"
       LOG_LEVEL: "info"
     ports:
@@ -40,8 +42,11 @@ services:
     depends_on:
       postgres_local:
         condition: service_healthy
-      redis:
-        condition:
-
     command: python src/app.py
 
+volumes:
+  postgres_local_data:
+
+networks:
+  manutencao_network:
+    driver: bridge
