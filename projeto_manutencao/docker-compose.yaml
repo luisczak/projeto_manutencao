@@ -1,0 +1,47 @@
+services:
+
+  postgres_local:
+    image: postgres:15-alpine
+    container_name: manutencao_postgres_local
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: manutencao_db
+    ports: 
+      - "5432:5432"
+
+    healthcheck: 
+      test:["CMD-SHELL", "pg_isready -U postgres -d manutencao_db"]
+      interval: 10s
+      timeout:5s
+      restries: 5
+    networks: 
+     - manutencao_network
+
+  backend:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    dns:
+    - 8.8.8.8
+    - 1.1.1.1
+    networks:
+    - manutencao_network
+    build:
+      context:.
+    container_name: manutencao_backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres_local:5432/manutencao_db
+      ERP_DATABASE_URL:
+      REDIS_URL:
+      DEBUG: "true"
+      LOG_LEVEL: "info"
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres_local:
+        condition: service_healthy
+      redis:
+        condition:
+
+    command: python src/app.py
+

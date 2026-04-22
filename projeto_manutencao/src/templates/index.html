@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Sistema de Manutenção</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Registro de Manutenções</h1>
+        
+        <form id="formManutencao">
+            <div>
+                <label>Descrição do Problema:</label>
+                <input type="text" id="descricao" required>
+            <div>
+                <label>Ação Realizada:</label>
+                <textarea id="acao_realizada" rows="3" required></textarea>
+            </div>
+            <button type="submit">Salvar Requisição</button>
+        </form>
+
+        <h2>Histórico de Atividades</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Data/Hora</th>
+                    <th>Descrição</th>
+                    <th>O que foi feito</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCorpo">
+                </tbody>
+        </table>
+    </div>
+
+    <script>
+        const form = document.getElementById('formManutencao');
+        const tabela = document.getElementById('tabelaCorpo');
+
+        async function carregarRequisicoes() {
+            const resposta = await fetch('/api/requisicoes');
+            const dados = await resposta.json();
+            tabela.innerHTML = ''; 
+            
+            dados.forEach(req => {
+                const linha = `<tr>
+                    <td><span class="badge-codigo">${req.codigo}</span></td>
+                    <td>${req.data} <br> <small>${req.hora}</small></td>
+                    <td>${req.descricao}</td>
+                    <td>${req.acao_realizada}</td>
+                </tr>`;
+                tabela.innerHTML += linha;
+            });
+        }
+
+       
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const descricao = document.getElementById('descricao').value;
+            const acao_realizada = document.getElementById('acao_realizada').value;
+
+            await fetch('http://localhost:5000/api/requisicoes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ descricao, acao_realizada })
+            });
+
+            form.reset(); 
+            carregarRequisicoes(); 
+        });
+
+      
+        carregarRequisicoes();
+    </script>
+</body>
+</html>

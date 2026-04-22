@@ -1,0 +1,14 @@
+FROM nginx:alpine
+COPY src/templates/index.html /usr/share/nginx/html/index.html
+COPY src/static/ /usr/share/nginx/html/static/
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+
+#docker build -t meu-back -f Dockerfile.backend .
+#docker build -t meu-front -f Dockerfile.frontend .
+ 
+#roda o back na porta 5000
+#docker run -d -p 5000:5000 meu-back
+
+#roda o front na porta 8080
+#docker run -d -p 8080:80 meu-front
