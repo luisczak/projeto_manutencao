@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="static/style.css">
     <title>Sistema de Manutenção</title>
 </head>
 <body>
     <div class="container">
         <h1>Registro de Manutenções</h1>
-        
+
+        <div id="mensagem-erro" style="display:none; color:#dc3545; background:#fdf0f0; border:1px solid #dc3545; border-radius:6px; padding:12px; margin-bottom:16px;"></div>
+
         <form id="formManutencao">
             <div>
                 <label>Descrição do Problema:</label>
-                <input type="text" id="descricao" required>
+                <input type="text" id="descricao" placeholder="Descreva o problema encontrado" required>
+            </div>
             <div>
                 <label>Ação Realizada:</label>
-                <textarea id="acao_realizada" rows="3" required></textarea>
+                <textarea id="acao_realizada" rows="3" placeholder="Descreva o que foi feito para resolver" required></textarea>
             </div>
             <button type="submit">Salvar Requisição</button>
         </form>
@@ -31,48 +34,81 @@
                     <th>O que foi feito</th>
                 </tr>
             </thead>
-            <tbody id="tabelaCorpo">
-                </tbody>
+            <tbody id="tabelaCorpo"></tbody>
         </table>
     </div>
 
     <script>
         const form = document.getElementById('formManutencao');
         const tabela = document.getElementById('tabelaCorpo');
+        const erroDiv = document.getElementById('mensagem-erro');
 
-        async function carregarRequisicoes() {
-            const resposta = await fetch('/api/requisicoes');
-            const dados = await resposta.json();
-            tabela.innerHTML = ''; 
-            
-            dados.forEach(req => {
-                const linha = `<tr>
-                    <td><span class="badge-codigo">${req.codigo}</span></td>
-                    <td>${req.data} <br> <small>${req.hora}</small></td>
-                    <td>${req.descricao}</td>
-                    <td>${req.acao_realizada}</td>
-                </tr>`;
-                tabela.innerHTML += linha;
-            });
+        
+        const API_URL = '/api/requisicoes';
+
+        function mostrarErro(msg) {
+            erroDiv.textContent = msg;
+            erroDiv.style.display = 'block';
         }
 
-       
+        function esconderErro() {
+            erroDiv.style.display = 'none';
+            erroDiv.textContent = '';
+        }
+
+        async function carregarRequisicoes() {
+            try {
+                const resposta = await fetch(API_URL);
+                if (!resposta.ok) throw new Error('Falha ao carregar dados.');
+                const dados = await resposta.json();
+                tabela.innerHTML = '';
+                dados.forEach(req => {
+                    const linha = `<tr>
+                        <td><span class="badge-codigo">${req.codigo}</span></td>
+                        <td>${req.data}<br><small>${req.hora}</small></td>
+                        <td>${req.descricao}</td>
+                        <td>${req.acao_realizada}</td>
+                    </tr>`;
+                    tabela.innerHTML += linha;
+                });
+            } catch (err) {
+                mostrarErro('Não foi possível carregar o histórico. Verifique a conexão com o servidor.');
+            }
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const descricao = document.getElementById('descricao').value;
-            const acao_realizada = document.getElementById('acao_realizada').value;
+            esconderErro();
 
-            await fetch('http://localhost:5000/api/requisicoes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ descricao, acao_realizada })
-            });
+            const descricao = document.getElementById('descricao').value.trim();
+            const acao_realizada = document.getElementById('acao_realizada').value.trim();
 
-            form.reset(); 
-            carregarRequisicoes(); 
+            if (!descricao || !acao_realizada) {
+                mostrarErro('Preencha todos os campos antes de salvar.');
+                return;
+            }
+
+            try {
+                const resposta = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ descricao, acao_realizada })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    mostrarErro(dados.erro || 'Erro ao salvar requisição.');
+                    return;
+                }
+
+                form.reset();
+                carregarRequisicoes();
+            } catch (err) {
+                mostrarErro('Não foi possível salvar. Verifique a conexão com o servidor.');
+            }
         });
 
-      
         carregarRequisicoes();
     </script>
 </body>
