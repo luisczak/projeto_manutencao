@@ -20,9 +20,7 @@ services:
       - manutencao_network
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: luisczack/back-const:latest
     container_name: manutencao_backend
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres_local:5432/manutencao_db
@@ -35,12 +33,9 @@ services:
     networks:
       - manutencao_network
     restart: always
-    command: python src/app.py
 
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
+    image: luisczack/front-const:latest
     container_name: manutencao_frontend
     ports:
       - "80:80"

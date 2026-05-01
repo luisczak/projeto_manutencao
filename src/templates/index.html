@@ -4,76 +4,468 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Sistema de Manutenção</title>
+    <title>SGM — Sistema de Gestão de Manutenção</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Registro de Manutenções</h1>
-        
-        <form id="formManutencao">
-            <div>
-                <label>Descrição do Problema:</label>
-                <input type="text" id="descricao" required>
-            <div>
-                <label>Ação Realizada:</label>
-                <textarea id="acao_realizada" rows="3" required></textarea>
-            </div>
-            <button type="submit">Salvar Requisição</button>
-        </form>
 
-        <h2>Histórico de Atividades</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Data/Hora</th>
-                    <th>Descrição</th>
-                    <th>O que foi feito</th>
-                </tr>
-            </thead>
-            <tbody id="tabelaCorpo">
-                </tbody>
-        </table>
+<div class="header">
+    <div class="header-title">SGM — <span>Gestão de Manutenção</span></div>
+    <div class="header-badge" id="relogioHeader"></div>
+</div>
+
+<div class="container">
+
+    <!-- STATS -->
+    <div class="stats-bar">
+        <div class="stat-card total active" data-filtro="todos" onclick="filtrarStatus('todos', this)">
+            <div class="stat-label">Total</div>
+            <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card aberta" data-filtro="aberta" onclick="filtrarStatus('aberta', this)">
+            <div class="stat-label">Em Aberto</div>
+            <div class="stat-value" id="stat-aberta">0</div>
+        </div>
+        <div class="stat-card realizada" data-filtro="realizada" onclick="filtrarStatus('realizada', this)">
+            <div class="stat-label">Realizadas</div>
+            <div class="stat-value" id="stat-realizada">0</div>
+        </div>
+        <div class="stat-card cancelada" data-filtro="cancelada" onclick="filtrarStatus('cancelada', this)">
+            <div class="stat-label">Canceladas</div>
+            <div class="stat-value" id="stat-cancelada">0</div>
+        </div>
     </div>
 
-    <script>
-        const form = document.getElementById('formManutencao');
-        const tabela = document.getElementById('tabelaCorpo');
+    <!-- FORM PANEL -->
+    <div class="panel">
+        <div class="panel-header" onclick="togglePanel(this)">
+            <div class="panel-title">Nova Requisição</div>
+            <div class="panel-toggle">▲ RECOLHER</div>
+        </div>
+        <div class="panel-body" id="formPanel">
+            <form id="formRequisicao">
+                <div class="form-grid">
 
-        async function carregarRequisicoes() {
-            const resposta = await fetch('/api/requisicoes');
-            const dados = await resposta.json();
-            tabela.innerHTML = ''; 
-            
-            dados.forEach(req => {
-                const linha = `<tr>
-                    <td><span class="badge-codigo">${req.codigo}</span></td>
-                    <td>${req.data} <br> <small>${req.hora}</small></td>
-                    <td>${req.descricao}</td>
-                    <td>${req.acao_realizada}</td>
-                </tr>`;
-                tabela.innerHTML += linha;
-            });
-        }
+                    <div class="field">
+                        <label>Código *</label>
+                        <input type="text" id="codigo" placeholder="Ex: 22805" required>
+                    </div>
 
-       
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const descricao = document.getElementById('descricao').value;
-            const acao_realizada = document.getElementById('acao_realizada').value;
+                    <div class="field">
+                        <label>Setor *</label>
+                        <input type="text" id="setor" placeholder="Ex: Laminação" required>
+                    </div>
 
-            await fetch('/api/requisicoes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ descricao, acao_realizada })
-            });
+                    <div class="field">
+                        <label>Máquina *</label>
+                        <input type="text" id="maquina" placeholder="Ex: Torno Roleteiro" required>
+                    </div>
 
-            form.reset(); 
-            carregarRequisicoes(); 
-        });
+                    <div class="field">
+                        <label>Tipo *</label>
+                        <div class="radio-group">
+                            <input type="radio" name="tipo" id="tipo_mec" value="mecanico" checked>
+                            <label for="tipo_mec">⚙ Mecânico</label>
+                            <input type="radio" name="tipo" id="tipo_ele" value="eletrico">
+                            <label for="tipo_ele">⚡ Elétrico</label>
+                        </div>
+                    </div>
 
-      
-        carregarRequisicoes();
-    </script>
+                    <div class="field span2">
+                        <label>Categoria *</label>
+                        <div class="radio-group">
+                            <input type="radio" name="categoria" id="cat_cor" value="corretiva_parada" checked>
+                            <label for="cat_cor">🔴 Corretiva — Máquina Parada</label>
+                            <input type="radio" name="categoria" id="cat_mel" value="melhoria">
+                            <label for="cat_mel">🟢 Melhoria</label>
+                        </div>
+                    </div>
+
+                    <div class="field span3">
+                        <label>Motivo / Descrição do Problema *</label>
+                        <textarea id="motivo" rows="2" placeholder="Descreva o problema ou serviço a realizar..." required></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label>Mecânico Responsável *</label>
+                        <input type="text" id="mecanico" placeholder="Nome do mecânico" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Supervisor *</label>
+                        <input type="text" id="supervisor" placeholder="Nome do supervisor" required>
+                    </div>
+
+                    <div class="field">
+                        <label>Observação</label>
+                        <input type="text" id="observacao" placeholder="Opcional">
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" onclick="limparForm()">Limpar</button>
+                    <button type="submit" class="btn btn-primary">Registrar Requisição</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABLE PANEL -->
+    <div class="panel">
+        <div class="panel-header" style="cursor:default">
+            <div class="panel-title">Histórico de Requisições</div>
+            <div id="contadorLabel" style="font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text-dim)"></div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="campoBusca" placeholder="Buscar por código, máquina, mecânico, setor..." oninput="buscar(this.value)">
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Abertura</th>
+                        <th>Setor / Máquina</th>
+                        <th>Tipo</th>
+                        <th>Categoria</th>
+                        <th>Motivo</th>
+                        <th>Mecânico</th>
+                        <th>Status</th>
+                        <th>Realização</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCorpo"></tbody>
+            </table>
+            <div id="emptyState" class="empty-state" style="display:none">
+                <div class="empty-icon">📋</div>
+                <p>Nenhuma requisição encontrada</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL EDIÇÃO -->
+<div class="modal-overlay" id="modalOverlay" onclick="fecharModalSeFora(event)">
+    <div class="modal">
+        <div class="modal-header">
+            <div>
+                <h2>Editar Requisição</h2>
+                <div class="modal-code" id="modalCodigo"></div>
+            </div>
+            <button class="btn-close" onclick="fecharModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <form id="formEdicao">
+                <div class="form-grid">
+
+                    <div class="field">
+                        <label>Setor</label>
+                        <input type="text" id="edit_setor">
+                    </div>
+                    <div class="field">
+                        <label>Máquina</label>
+                        <input type="text" id="edit_maquina">
+                    </div>
+                    <div class="field">
+                        <label>Mecânico</label>
+                        <input type="text" id="edit_mecanico">
+                    </div>
+
+                    <div class="field">
+                        <label>Tipo</label>
+                        <div class="radio-group">
+                            <input type="radio" name="edit_tipo" id="edit_tipo_mec" value="mecanico">
+                            <label for="edit_tipo_mec">⚙ Mecânico</label>
+                            <input type="radio" name="edit_tipo" id="edit_tipo_ele" value="eletrico">
+                            <label for="edit_tipo_ele">⚡ Elétrico</label>
+                        </div>
+                    </div>
+                    <div class="field span2">
+                        <label>Categoria</label>
+                        <div class="radio-group">
+                            <input type="radio" name="edit_categoria" id="edit_cat_cor" value="corretiva_parada">
+                            <label for="edit_cat_cor">🔴 Corretiva — Máquina Parada</label>
+                            <input type="radio" name="edit_categoria" id="edit_cat_mel" value="melhoria">
+                            <label for="edit_cat_mel">🟢 Melhoria</label>
+                        </div>
+                    </div>
+
+                    <div class="field span3">
+                        <label>Motivo</label>
+                        <textarea id="edit_motivo" rows="2"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label>Supervisor</label>
+                        <input type="text" id="edit_supervisor">
+                    </div>
+                    <div class="field">
+                        <label>Observação</label>
+                        <input type="text" id="edit_observacao">
+                    </div>
+                    <div class="field">
+                        <label>Status</label>
+                        <select id="edit_status">
+                            <option value="aberta">Aberta</option>
+                            <option value="realizada">Realizada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Data de Realização</label>
+                        <input type="text" id="edit_data_realizacao" placeholder="DD/MM/AAAA">
+                    </div>
+                    <div class="field">
+                        <label>Hora de Realização</label>
+                        <input type="text" id="edit_hora_realizacao" placeholder="HH:MM:SS">
+                    </div>
+                    <div class="field" style="display:flex;align-items:flex-end">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="preencherAgora()" style="width:100%">
+                            ⏱ Usar data/hora atual
+                        </button>
+                    </div>
+
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+let filtroAtual = 'todos';
+let buscaAtual = '';
+let codigoEditando = '';
+let todasRequisicoes = [];
+
+// RELÓGIO
+function atualizarRelogio() {
+    const now = new Date();
+    document.getElementById('relogioHeader').textContent =
+        now.toLocaleDateString('pt-BR') + ' — ' + now.toLocaleTimeString('pt-BR');
+}
+setInterval(atualizarRelogio, 1000);
+atualizarRelogio();
+
+// TOAST
+function showToast(msg, erro = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (erro ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// TOGGLE PANEL
+function togglePanel(header) {
+    const body = header.nextElementSibling;
+    const toggle = header.querySelector('.panel-toggle');
+    body.classList.toggle('collapsed');
+    toggle.textContent = body.classList.contains('collapsed') ? '▼ EXPANDIR' : '▲ RECOLHER';
+}
+
+// CARREGAR
+async function carregar() {
+    let url = '/api/requisicoes?';
+    if (filtroAtual !== 'todos') url += `status=${filtroAtual}&`;
+    if (buscaAtual) url += `busca=${encodeURIComponent(buscaAtual)}`;
+
+    const res = await fetch(url);
+    todasRequisicoes = await res.json();
+    renderTabela(todasRequisicoes);
+    await atualizarStats();
+}
+
+async function atualizarStats() {
+    const res = await fetch('/api/requisicoes');
+    const todas = await res.json();
+    document.getElementById('stat-total').textContent = todas.length;
+    document.getElementById('stat-aberta').textContent = todas.filter(r => r.status === 'aberta').length;
+    document.getElementById('stat-realizada').textContent = todas.filter(r => r.status === 'realizada').length;
+    document.getElementById('stat-cancelada').textContent = todas.filter(r => r.status === 'cancelada').length;
+}
+
+function renderTabela(lista) {
+    const tbody = document.getElementById('tabelaCorpo');
+    const empty = document.getElementById('emptyState');
+    const contador = document.getElementById('contadorLabel');
+
+    contador.textContent = lista.length + ' registro(s)';
+
+    if (lista.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = lista.map(r => `
+        <tr>
+            <td><span class="code-cell">${r.codigo}</span></td>
+            <td class="datetime-cell">${r.data_abertura}<br>${r.hora_abertura}</td>
+            <td>
+                <div style="font-weight:500;color:var(--text-bright)">${r.maquina}</div>
+                <div style="font-size:12px;color:var(--text-dim)">${r.setor}</div>
+            </td>
+            <td><span class="badge badge-${r.tipo}">${r.tipo === 'eletrico' ? '⚡ Elétrico' : '⚙ Mecânico'}</span></td>
+            <td><span class="badge ${r.categoria === 'corretiva_parada' ? 'badge-corretiva' : 'badge-melhoria'}">${r.categoria === 'corretiva_parada' ? 'Corretiva' : 'Melhoria'}</span></td>
+            <td style="max-width:200px;color:var(--text-dim);font-size:13px">${r.motivo}</td>
+            <td style="font-size:13px">${r.mecanico}</td>
+            <td><span class="badge badge-${r.status}">${r.status.charAt(0).toUpperCase() + r.status.slice(1)}</span></td>
+            <td class="datetime-cell">${r.data_realizacao ? r.data_realizacao + '<br>' + r.hora_realizacao : '<span style="color:var(--text-dim);font-size:12px">—</span>'}</td>
+            <td>
+                <button class="btn btn-ghost btn-sm" onclick="abrirModal('${r.codigo}')">Editar</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// FILTRO
+function filtrarStatus(status, card) {
+    filtroAtual = status;
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    carregar();
+}
+
+// BUSCA
+let buscaTimer;
+function buscar(val) {
+    clearTimeout(buscaTimer);
+    buscaTimer = setTimeout(() => {
+        buscaAtual = val;
+        carregar();
+    }, 300);
+}
+
+// FORM NOVO
+document.getElementById('formRequisicao').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tipo = document.querySelector('input[name="tipo"]:checked').value;
+    const categoria = document.querySelector('input[name="categoria"]:checked').value;
+
+    const dados = {
+        codigo: document.getElementById('codigo').value.trim(),
+        setor: document.getElementById('setor').value.trim(),
+        maquina: document.getElementById('maquina').value.trim(),
+        tipo,
+        categoria,
+        motivo: document.getElementById('motivo').value.trim(),
+        mecanico: document.getElementById('mecanico').value.trim(),
+        supervisor: document.getElementById('supervisor').value.trim(),
+        observacao: document.getElementById('observacao').value.trim()
+    };
+
+    const res = await fetch('/api/requisicoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        showToast(`Requisição ${dados.codigo} registrada com sucesso`);
+        limparForm();
+        carregar();
+    } else {
+        showToast(data.erro || 'Erro ao salvar', true);
+    }
+});
+
+function limparForm() {
+    document.getElementById('formRequisicao').reset();
+    document.getElementById('tipo_mec').checked = true;
+    document.getElementById('cat_cor').checked = true;
+}
+
+// MODAL
+async function abrirModal(codigo) {
+    codigoEditando = codigo;
+    const res = await fetch(`/api/requisicoes/${codigo}`);
+    const r = await res.json();
+
+    document.getElementById('modalCodigo').textContent = 'REQ #' + codigo;
+    document.getElementById('edit_setor').value = r.setor || '';
+    document.getElementById('edit_maquina').value = r.maquina || '';
+    document.getElementById('edit_mecanico').value = r.mecanico || '';
+    document.getElementById('edit_supervisor').value = r.supervisor || '';
+    document.getElementById('edit_motivo').value = r.motivo || '';
+    document.getElementById('edit_observacao').value = r.observacao || '';
+    document.getElementById('edit_status').value = r.status || 'aberta';
+    document.getElementById('edit_data_realizacao').value = r.data_realizacao || '';
+    document.getElementById('edit_hora_realizacao').value = r.hora_realizacao || '';
+
+    document.querySelector(`input[name="edit_tipo"][value="${r.tipo}"]`).checked = true;
+    document.querySelector(`input[name="edit_categoria"][value="${r.categoria}"]`).checked = true;
+
+    document.getElementById('modalOverlay').classList.add('open');
+}
+
+function fecharModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function fecharModalSeFora(e) {
+    if (e.target === document.getElementById('modalOverlay')) fecharModal();
+}
+
+function preencherAgora() {
+    const now = new Date();
+    document.getElementById('edit_data_realizacao').value = now.toLocaleDateString('pt-BR');
+    document.getElementById('edit_hora_realizacao').value = now.toLocaleTimeString('pt-BR');
+}
+
+document.getElementById('formEdicao').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const tipo = document.querySelector('input[name="edit_tipo"]:checked').value;
+    const categoria = document.querySelector('input[name="edit_categoria"]:checked').value;
+
+    const dados = {
+        setor: document.getElementById('edit_setor').value.trim(),
+        maquina: document.getElementById('edit_maquina').value.trim(),
+        mecanico: document.getElementById('edit_mecanico').value.trim(),
+        supervisor: document.getElementById('edit_supervisor').value.trim(),
+        motivo: document.getElementById('edit_motivo').value.trim(),
+        observacao: document.getElementById('edit_observacao').value.trim(),
+        status: document.getElementById('edit_status').value,
+        tipo,
+        categoria,
+        data_realizacao: document.getElementById('edit_data_realizacao').value.trim() || null,
+        hora_realizacao: document.getElementById('edit_hora_realizacao').value.trim() || null
+    };
+
+    const res = await fetch(`/api/requisicoes/${codigoEditando}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    });
+
+    if (res.ok) {
+        showToast('Requisição atualizada com sucesso');
+        fecharModal();
+        carregar();
+    } else {
+        showToast('Erro ao atualizar', true);
+    }
+});
+
+// INIT
+carregar();
+</script>
+
 </body>
 </html>

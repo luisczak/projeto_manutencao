@@ -15,11 +15,20 @@ def criar_tabela():
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS requisicoes (
-                codigo VARCHAR(10) PRIMARY KEY,
-                descricao TEXT NOT NULL CHECK (descricao <> ''),
-                acao_realizada TEXT NOT NULL CHECK (acao_realizada <> ''),
-                data VARCHAR(15) NOT NULL,
-                hora VARCHAR(15) NOT NULL
+                codigo VARCHAR(20) PRIMARY KEY,
+                setor VARCHAR(100) NOT NULL,
+                maquina VARCHAR(100) NOT NULL,
+                tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('eletrico', 'mecanico')),
+                categoria VARCHAR(30) NOT NULL CHECK (categoria IN ('corretiva_parada', 'melhoria')),
+                motivo TEXT NOT NULL,
+                mecanico VARCHAR(100) NOT NULL,
+                supervisor VARCHAR(100) NOT NULL,
+                status VARCHAR(20) NOT NULL DEFAULT 'aberta' CHECK (status IN ('aberta', 'realizada', 'cancelada')),
+                data_abertura VARCHAR(15) NOT NULL,
+                hora_abertura VARCHAR(15) NOT NULL,
+                data_realizacao VARCHAR(15),
+                hora_realizacao VARCHAR(15),
+                observacao TEXT
             )
         ''')
         conn.commit()
