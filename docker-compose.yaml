@@ -20,29 +20,35 @@ services:
       - manutencao_network
 
   backend:
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
-    networks:
-      - manutencao_network
     build:
       context: .
       dockerfile: Dockerfile
     container_name: manutencao_backend
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres_local:5432/manutencao_db
-      ERP_DATABASE_URL: ""
-      REDIS_URL: ""
       DEBUG: "true"
-      LOG_LEVEL: "info"
     ports:
       - "5000:5000"
     depends_on:
       postgres_local:
         condition: service_healthy
+    networks:
+      - manutencao_network
+    restart: always
     command: python src/app.py
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: manutencao_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - manutencao_network
+    restart: always
 
 volumes:
   postgres_local_data:
