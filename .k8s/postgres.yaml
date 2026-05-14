@@ -1,26 +1,12 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-  namespace: sistema
-spec:
-  accessModes: ["ReadWriteOnce"]
-  resources:
-    requests:
-      storage: 101
-
----
-
-apiVersion: app/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: sistema
 spec:
-  replices: 1
-  selector: 
+  replicas: 1
+  selector:
     matchLabels:
-      app:postgres
+      app: postgres
   template:
     metadata:
       labels:
@@ -28,43 +14,39 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: postgres:16
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
           env:
             - name: POSTGRES_USER
-              ValueFrom:
+              valueFrom:
                 secretKeyRef:
                   name: app-secret
                   key: DB_USER
             - name: POSTGRES_PASSWORD
-              valueFrom:  
+              valueFrom:
                 secretKeyRef:
                   name: app-secret
                   key: DB_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
-              secretKeyRef:
-                name: app-secret
-                key: DB_NAME
-          ports:
-            - containerPort: 5432
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_NAME
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: postgres-data
-    volumes:
-      - name: postgres-data
-        persistenVolumeClaim:
-        claimName: postgres-pvc
-
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          emptyDir: {}
 ---
-
 apiVersion: v1
-kind: Service 
+kind: Service
 metadata:
-  name: postgres
-  namespace: sistema
+  name: postgres-service
 spec:
-  ports: 
-    - port: 5432
-      targetPort: 5432
   selector:
     app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
