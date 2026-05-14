@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:   
+  name: app-config 
+  labels:
+    app: meu-projeto
+data:
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  NODE_END: "development"
+  API_URL: "http://backend-service:8080"

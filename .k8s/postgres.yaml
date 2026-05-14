@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: sistema
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 101
+
+---
+
+apiVersion: app/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: sistema
+spec:
+  replices: 1
+  selector: 
+    matchLabels:
+      app:postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - name: POSTGRES_USER
+              ValueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:  
+                secretKeyRef:
+                  name: app-secret
+                  key: DB_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+              secretKeyRef:
+                name: app-secret
+                key: DB_NAME
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+    volumes:
+      - name: postgres-data
+        persistenVolumeClaim:
+        claimName: postgres-pvc
+
+---
+
+apiVersion: v1
+kind: Service 
+metadata:
+  name: postgres
+  namespace: sistema
+spec:
+  ports: 
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: postgres

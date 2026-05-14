@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-Deployment
+  labels:
+    app: frontend
+spec: 
+  replices: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec: 
+      containers:
+        - name: frontend
+          image: seunome/meu-frontend:latest
+          ports:
+            - containerPort: 80
+          env:
+          - name: REACT_APP_API_URL
+            valueFrom:  
+              configMapKeyRef:
+                name: app-config
+                key: API_URL
