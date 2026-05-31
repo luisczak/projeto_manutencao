@@ -1,0 +1,14 @@
+cat > .gitignore << 'EOF'
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+coverage/
+htmlcov/
+.env
+venv/
+*.pem
+EOF
+
+git add .gitignore
+git commit -m "chore: adiciona .gitignore"
