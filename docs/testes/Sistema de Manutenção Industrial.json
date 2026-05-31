@@ -1,0 +1,272 @@
+{
+  "v": 12,
+  "name": "Sistema de Manutenção Industrial",
+  "folders": [
+    {
+      "v": 12,
+      "name": "Requisições",
+      "folders": [],
+      "requests": [
+        {
+          "v": "17",
+          "id": "req-001",
+          "name": "CT-03 - Listar todas as requisições",
+          "method": "GET",
+          "endpoint": "http://localhost:5000/api/requisicoes",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-002",
+          "name": "CT-03 - Listar com filtro por status (aberta)",
+          "method": "GET",
+          "endpoint": "http://localhost:5000/api/requisicoes",
+          "params": [
+            {
+              "key": "status",
+              "value": "aberta",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-003",
+          "name": "CT-03 - Listar com filtro por busca",
+          "method": "GET",
+          "endpoint": "http://localhost:5000/api/requisicoes",
+          "params": [
+            {
+              "key": "busca",
+              "value": "torno",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-004",
+          "name": "CT-01 - Cadastrar requisição com dados válidos",
+          "method": "POST",
+          "endpoint": "http://localhost:5000/api/requisicoes",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"codigo\": \"TESTE-01\",\n  \"setor\": \"Produção\",\n  \"maquina\": \"Torno CNC\",\n  \"tipo\": \"Corretiva\",\n  \"categoria\": \"Mecânica\",\n  \"motivo\": \"Eixo quebrado\",\n  \"mecanico\": \"João Silva\",\n  \"supervisor\": \"Carlos Souza\",\n  \"observacao\": \"Urgente\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-005",
+          "name": "CT-02 - Cadastrar com campo obrigatório vazio (descricao)",
+          "method": "POST",
+          "endpoint": "http://localhost:5000/api/requisicoes",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"codigo\": \"\",\n  \"setor\": \"Produção\",\n  \"maquina\": \"Torno CNC\",\n  \"tipo\": \"Corretiva\",\n  \"categoria\": \"Mecânica\",\n  \"motivo\": \"Eixo quebrado\",\n  \"mecanico\": \"João Silva\",\n  \"supervisor\": \"Carlos Souza\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-006",
+          "name": "CT-05 - Cadastrar código duplicado (deve retornar 409)",
+          "method": "POST",
+          "endpoint": "http://localhost:5000/api/requisicoes",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"codigo\": \"REQ-001\",\n  \"setor\": \"Produção\",\n  \"maquina\": \"Torno CNC\",\n  \"tipo\": \"Corretiva\",\n  \"categoria\": \"Mecânica\",\n  \"motivo\": \"Eixo quebrado\",\n  \"mecanico\": \"João Silva\",\n  \"supervisor\": \"Carlos Souza\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-007",
+          "name": "CT-03 - Buscar requisição por código (encontrada)",
+          "method": "GET",
+          "endpoint": "http://localhost:5000/api/requisicoes/REQ-001",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-008",
+          "name": "CT-03 - Buscar requisição por código (não encontrada, deve retornar 404)",
+          "method": "GET",
+          "endpoint": "http://localhost:5000/api/requisicoes/INEXISTENTE",
+          "params": [],
+          "headers": [],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": null,
+            "body": null
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        },
+        {
+          "v": "17",
+          "id": "req-009",
+          "name": "CT-07 - Atualizar requisição (PUT)",
+          "method": "PUT",
+          "endpoint": "http://localhost:5000/api/requisicoes/REQ-001",
+          "params": [],
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json",
+              "active": true,
+              "description": ""
+            }
+          ],
+          "preRequestScript": "",
+          "testScript": "",
+          "auth": {
+            "authType": "none",
+            "authActive": false
+          },
+          "body": {
+            "contentType": "application/json",
+            "body": "{\n  \"setor\": \"Produção\",\n  \"maquina\": \"Torno CNC\",\n  \"tipo\": \"Corretiva\",\n  \"categoria\": \"Mecânica\",\n  \"motivo\": \"Eixo trocado\",\n  \"mecanico\": \"João Silva\",\n  \"supervisor\": \"Carlos Souza\",\n  \"status\": \"concluida\",\n  \"data_realizacao\": \"25/05/2026\",\n  \"hora_realizacao\": \"14:00:00\",\n  \"observacao\": \"Concluído com sucesso\"\n}"
+          },
+          "requestVariables": [],
+          "responses": {},
+          "description": null
+        }
+      ],
+      "auth": {
+        "authType": "inherit",
+        "authActive": true
+      },
+      "headers": [],
+      "variables": [],
+      "description": null,
+      "preRequestScript": "",
+      "testScript": ""
+    }
+  ],
+  "requests": [],
+  "auth": {
+    "authType": "inherit",
+    "authActive": true
+  },
+  "headers": [],
+  "variables": [],
+  "description": null,
+  "preRequestScript": "",
+  "testScript": ""
+}

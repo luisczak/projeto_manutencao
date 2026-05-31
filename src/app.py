@@ -128,11 +128,10 @@ def requisicao_por_codigo(codigo):
             return jsonify({'mensagem': 'Atualizado com sucesso!'})
 
     except Exception as e:
-        print(f"Erro: {e}")
-        return jsonify({'erro': 'Falha na operacao'}), 500
-    finally:
-        if conn:
-            conn.close()
+        print(f"Erro completo: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+    return jsonify({'erro': f'Falha na conexao: {str(e)}'}), 500
 
 if __name__ == '__main__':
     print("Servidor iniciando...")
