@@ -87,6 +87,10 @@ DB_PORT=5432
 DEBUG=true
 ```
 
+## SonarQube
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=luisczak_projeto_manutencao&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=luisczak_projeto_manutencao)
+
 ## Autor
 
 Desenvolvido como projeto acadêmico de Engenharia de Software.
