@@ -46,7 +46,7 @@ pip install -r requirements.txt
 
 ```bash
 python src/app.py
-```
+``` 
 
 Acesse em: `http://localhost:5000`
 
